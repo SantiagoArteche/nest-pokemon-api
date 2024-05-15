@@ -6,18 +6,23 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { PokemonService } from './pokemon.service';
 import { CreatePokemonDto } from './dto/create-pokemon.dto';
 import { UpdatePokemonDto } from './dto/update-pokemon.dto';
+import { PaginationDto } from './dto/pagination.dto';
+
+
+
 
 @Controller('pokemon')
 export class PokemonController {
   constructor(private pokemonService: PokemonService) {}
 
   @Get()
-  getPokemon() {
-    return this.pokemonService.getAll();
+  getPokemon(@Query() queryParameters: PaginationDto) {
+    return this.pokemonService.getAll(queryParameters);
   }
 
   @Get(':term')

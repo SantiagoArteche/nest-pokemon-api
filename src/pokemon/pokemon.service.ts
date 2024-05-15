@@ -9,6 +9,7 @@ import { Model, isValidObjectId } from 'mongoose';
 import { Pokemon } from './entities/pokemon.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { UpdatePokemonDto } from './dto/update-pokemon.dto';
+import { PaginationDto } from './dto/pagination.dto';
 
 @Injectable()
 export class PokemonService {
@@ -17,10 +18,19 @@ export class PokemonService {
     private readonly pokemonModel: Model<Pokemon>,
   ) {}
 
-  async getAll() {
-    try {
-      const pokemons = await this.pokemonModel.find();
+  async getAll({ limit = 10, offset = 0, sort = 'asc' }: PaginationDto) {
+    if (+sort === 1) sort = 'asc';
+    if (+sort === -1) sort = 'desc';
 
+    if (sort !== 'asc' && sort !== 'desc')
+      throw new BadRequestException(`Valid values: [1, -1, asc, desc]`);
+
+    try {
+      const pokemons = await this.pokemonModel
+        .find()
+        .limit(+limit)
+        .skip(+offset)
+        .sort({ nro: sort });
       return pokemons;
     } catch (error) {
       throw new InternalServerErrorException(`Internal Server Error`);
